@@ -10,16 +10,36 @@ module.exports = function(app) {
     response.json({ info: 'pong' })
   });
 
-  app.get('/favourites', (request, response) => {
-    db.getFavourites(request, response);
+  app.get('/favourites', async (request, response) => {
+    try {
+      response.json(await db.getFavourites());
+    } catch(e) {
+      console.error(e);
+    } finally {
+      response.end();
+    }
   });
 
-  app.post('/favourites',  (request, response) => {
-    db.addFavourite(request, response);
+  app.post('/favourites', async (request, response) => {
+    try {
+      const { name } = request.body;
+      response.json(await db.addFavourite(name));
+    } catch(e) {
+      console.error(e);
+    } finally {
+      response.end();
+    }
   });
 
-  app.delete('/favourites/:name',  (request, response) => {
-    db.deleteFavourite(request, response);
+  app.delete('/favourites/:name', async (request, response) => {
+    try {
+      const name = request.params.name;
+      response.json(await db.deleteFavourite(name));
+    } catch(e) {
+      console.error(e);
+    } finally {
+      response.end();
+    }
   });
 
   app.get('/weather/city/:town', async (request, response) => {

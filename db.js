@@ -7,33 +7,29 @@ const pool = new Pool({
     port: 5432,
 });
 
-const getFavourites = (request, response) => {
-    pool.query('SELECT * FROM favourites', (error, results) => {
-        if (error) {
-            throw error;
-        }
-        response.status(200).json(results.rows);
-    });
+const getFavourites = async () => {
+    const result = await pool.query('SELECT * FROM favourites');
+    return result.rows;
 };
 
-const addFavourite = (request, response) => {
-    const { name } = request.body;
-    pool.query('INSERT INTO favourites (name) VALUES ($1)', [name], (error, results) => {
-        if (error) {
-            throw error;
-        }
-        response.status(201).send(`Favourite town added with name: ${name}`);
-    });
+const addFavourite = async (name) => {
+    const favs = await getFavourites();
+    if (favs === null || favs.find(x => x.name === name) === undefined) {
+        await pool.query('INSERT INTO favourites (name) VALUES ($1)', [name]);
+        return 'added';
+    } else {
+        throw 'Already in db';
+    }
 };
 
-const deleteFavourite = (request, response) => {
-    const name = request.params.name;
-    pool.query('DELETE FROM favourites WHERE name = $1', [name], (error, results) => {
-        if (error) {
-            throw error;
-        }
-        response.status(201).send(`Favourite town deleted with name: ${name}`);
-    });
+const deleteFavourite = async (name) => {
+    const favs = await getFavourites();
+    if (favs.find(x => x.name === name) !== undefined) {
+        await pool.query('DELETE FROM favourites WHERE name = $1', [name]);
+        return 'deleted';
+    } else {
+        throw 'not in db';
+    }
 };
 
 module.exports = {
