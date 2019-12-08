@@ -1,0 +1,15 @@
+// run postgres docker
+sudo docker run --rm --name weather-api -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgres
+
+//run psql
+psql -h localhost -U postgres
+
+// creation db and move to it
+create database api;
+\c api
+
+// creation favourites table
+CREATE TABLE favourites (
+  ID SERIAL PRIMARY KEY,
+  name VARCHAR(30)
+);
