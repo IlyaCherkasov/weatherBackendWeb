@@ -14,7 +14,7 @@ module.exports = function(app) {
     try {
       response.json(await db.getFavourites());
     } catch(e) {
-      console.error(e);
+      response.status(424).json(e);
     } finally {
       response.end();
     }
@@ -25,7 +25,7 @@ module.exports = function(app) {
       const { name } = request.body;
       response.json(await db.addFavourite(name));
     } catch(e) {
-      console.error(e);
+      response.status(424).json(e);
     } finally {
       response.end();
     }
@@ -36,7 +36,8 @@ module.exports = function(app) {
       const name = request.params.name;
       response.json(await db.deleteFavourite(name));
     } catch(e) {
-      console.error(e);
+      response.code(424);
+      response.json({ message: 'Something wend wrong' });
     } finally {
       response.end();
     }
@@ -45,10 +46,10 @@ module.exports = function(app) {
   app.get('/weather/city/:town', async (request, response) => {
     try {
       const { town } = request.params;
-      const result = await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${town}&APPID=${APIKey}`);
-      response.json(result.data);
-    } catch (e) {
-      console.log(e);
+      await axios.get(`https://api.openweathermap.org/data/2.5/weather?q=${town}&APPID=${APIKey}`)
+          .then(result => response.json(result.data))
+          .catch(x => response.status(424).json(x));
+    } finally {
       response.end();
     }
   });
@@ -56,10 +57,10 @@ module.exports = function(app) {
   app.get('/weather/coordinates/:long&:lat', async (request, response) => {
     try {
       const { lat, long } = request.params;
-      const result = await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&APPID=${APIKey}`);
-      response.json(result.data);
-    } catch (e) {
-      console.log(e);
+      await axios.get(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${long}&APPID=${APIKey}`)
+          .then(result => response.json(result.data))
+          .catch(x => response.status(424).json(x));
+    } finally {
       response.end();
     }
   });
